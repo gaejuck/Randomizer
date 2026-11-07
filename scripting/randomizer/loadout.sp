@@ -718,10 +718,10 @@ void Loadout_ApplyClientCosmetics(int iClient, const int[] iSlots, int iSlotCoun
 		for (int iClass = CLASS_MIN; iClass <= CLASS_MAX; iClass++)
 		{
 			int iSlot = TF2_GetSlotFromIndex(iIndex, view_as<TFClassType>(iClass));
-			if (iSlot == LoadoutSlot_Misc)
+			if (iSlot == LoadoutSlot_Head || iSlot == LoadoutSlot_Misc || iSlot == LoadoutSlot_Misc2)
 			{
 				TF2_RemoveItem(iClient, iWearable);
-				continue;
+				break;
 			}
 		}
 	}
@@ -736,6 +736,8 @@ void Loadout_ApplyClientCosmetics(int iClient, const int[] iSlots, int iSlotCoun
 	Address[] pPossibleItems = new Address[CLASS_MAX * iSlotCount];
 	int iPossibleCount;
 	
+	TFClassType nClientClass = TF2_GetPlayerClass(iClient);
+	
 	for (int iClass = CLASS_MIN; iClass <= CLASS_MAX; iClass++)
 	{
 		for (int i = 0; i < iSlotCount; i++)
@@ -743,8 +745,12 @@ void Loadout_ApplyClientCosmetics(int iClient, const int[] iSlots, int iSlotCoun
 			Address pItem = SDKCall_GetLoadoutItem(iClient, view_as<TFClassType>(iClass), iSlots[i]);
 			if (TF2_IsValidEconItemView(pItem))
 			{
-				pPossibleItems[iPossibleCount] = pItem;
-				iPossibleCount++;
+				int iIndex = LoadFromAddress(pItem + view_as<Address>(g_iOffsetItemDefinitionIndex), NumberType_Int16);
+				if (Cosmetics_IsItemCompatibleWithClass(iIndex, nClientClass))
+				{
+					pPossibleItems[iPossibleCount] = pItem;
+					iPossibleCount++;
+				}
 			}
 		}
 	}

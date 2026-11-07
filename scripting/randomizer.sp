@@ -350,7 +350,7 @@ ConVar g_cvDroppedWeapons;
 ConVar g_cvHuds;
 ConVar g_cvRandomize[view_as<int>(RandomizedType_MAX)];
 
-bool g_bClientRefresh[MAXPLAYERS];
+bool g_bClientRefresh[MAXPLAYERS + 1];
 
 TFClassType g_iClientCurrentClass[MAXPLAYERS + 1][4];
 ClientClassDebug g_ClientClassDebug[MAXPLAYERS + 1][10];

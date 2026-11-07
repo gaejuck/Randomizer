@@ -690,3 +690,48 @@ stock int FindStringIndex2(int iTableId, const char[] sParticle)
 
 	return INVALID_STRING_INDEX;
 }
+static const char g_sClassNamesEng[][] = {
+	"unknown",
+	"scout",
+	"sniper",
+	"soldier",
+	"demoman",
+	"medic",
+	"heavy",
+	"pyro",
+	"spy",
+	"engineer"
+};
+
+stock bool Cosmetics_IsItemCompatibleWithClass(int iIndex, TFClassType nClass)
+{
+	if (iIndex <= 0 || !TF2Econ_IsValidItemDefinition(iIndex))
+		return false;
+
+	if (nClass == TFClass_Unknown)
+		return true;
+
+	int iClass = view_as<int>(nClass);
+	if (iClass < CLASS_MIN || iClass > CLASS_MAX)
+		return false;
+
+	// 1: Client class officially supported
+	int iSlot = TF2Econ_GetItemLoadoutSlot(iIndex, nClass);
+	if (iSlot == LoadoutSlot_Head || iSlot == LoadoutSlot_Misc || iSlot == LoadoutSlot_Misc2)
+		return true;
+
+	char sKey[32];
+	Format(sKey, sizeof(sKey), "used_by_classes/%s", g_sClassNamesEng[iClass]);
+	char sVal[8];
+	if (TF2Econ_GetItemDefinitionString(iIndex, sKey, sVal, sizeof(sVal)) && StrEqual(sVal, "1"))
+		return true;
+
+	// 2: Other class cosmetic with static model path without %s
+	char sModelPath[PLATFORM_MAX_PATH];
+	TF2Econ_GetItemDefinitionString(iIndex, "model_player", sModelPath, sizeof(sModelPath));
+
+	if (sModelPath[0] != '\0' && StrContains(sModelPath, "%s") == -1)
+		return true;
+
+	return false;
+}
